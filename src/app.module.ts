@@ -1,22 +1,33 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import AppService from './app.service';
 import { SequelizeModule } from '@nestjs/sequelize';
+import { UsersModule } from './users/users.module';
+import { ConfigModule } from '@nestjs/config';
+import { RolesModule } from './roles/roles.module';
+import { AuthModule } from './auth/auth.module';
+import User from './users/users.model';
+import Role from './roles/roles.model';
+import UserRoles from './roles/user-roles.model';
 
 @Module({
-  controllers: [AppController],
-  providers: [AppService],
+  controllers: [],
+  providers: [],
   imports: [
+    ConfigModule.forRoot({
+      envFilePath: `.${process.env.NODE_ENV}.env`,
+    }),
     SequelizeModule.forRoot({
       dialect: 'postgres',
-      host: 'localhost',
-      port: 5432,
-      username: 'root',
-      password: 'root',
-      database: 'backend-nest',
-      models: [],
+      host: process.env.DB_HOST,
+      port: +process.env.DB_PORT,
+      username: process.env.DB_USERNAME,
+      password: process.env.DB_PASSWORD,
+      database: process.env.DB_NAME,
+      models: [User, Role, UserRoles],
       autoLoadModels: true,
     }),
+    UsersModule,
+    RolesModule,
+    AuthModule,
   ],
 })
 export default class AppModule {}
